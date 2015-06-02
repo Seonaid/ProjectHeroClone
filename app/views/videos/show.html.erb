@@ -1,19 +1,74 @@
 <p id="notice"><%= notice %></p>
 
-<p>
-  <strong>Wistia:</strong>
-  <%= @video.wistia %>
-</p>
+<div class="row">
+	<div class="col m3">
+      <div class="collection">
+      	<% @videos.each do |video| %>
+      		<%= link_to video.title, video, :class => 'collection-item' %>
+      	<% end %>
+      </div>
+	</div>
 
-<p>
-  <strong>Title:</strong>
-  <%= @video.title %>
-</p>
+	<div class="col m9">
+		<div class="card blue-grey darken-1">
+			<div class="card-image">
+				<div id="player"></div>
+			</div>
 
-<p>
-  <strong>Description:</strong>
-  <%= @video.description %>
-</p>
+			<div class="card-content white-text">
+				<span class="card-title"><%= @video.title %></span>
+				<p><%= @video.description %></p>
+			</div>
+			
+			<div class="card-action">
+				<a href="#">Previous</a>
+				<span class = "right">
+					<a href='#'>Next</a>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
 
-<%= link_to 'Edit', edit_video_path(@video) %> |
-<%= link_to 'Back', videos_path %>
+    <script>
+      // 2. This code loads the IFrame Player API code asynchronously.
+      var tag = document.createElement('script');
+
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+			width: '100%',
+          videoId: '<%= @video.wistia %>',
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      // 4. The API will call this function when the video player is ready.
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+      var done = false;
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.PLAYING && !done) {
+          setTimeout(stopVideo, 6000);
+          done = true;
+        }
+      }
+      function stopVideo() {
+        player.stopVideo();
+      }
+    </script>
